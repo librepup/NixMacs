@@ -38,7 +38,6 @@ let
     bongo
     impatient-mode
     simple-httpd
-    org
   ] ++ (cfg.extraPackages epkgs));
   
   # Then create wrapper that references it
