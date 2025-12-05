@@ -52,3 +52,6 @@ nixMacs = {
   enable = true;
 };
 ```
+
+# Showcase
+![Showcase](https://codeberg.org/nixpup/NixMacs/raw/branch/main/example.png)
