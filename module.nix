@@ -4,6 +4,11 @@ with lib;
 
 let
   cfg = config.nixMacs;
+  logoImage = "${./config/nix_emacs_logo_small.png}";
+  customEorg = pkgs.runCommand "e.org" {} ''
+    substitute ${./config/e.org} $out \
+      --replace "~/Pictures/nix_emacs_logo_small.png" "${logoImage}"
+  '';
 in {
   options.nixMacs = {
     enable = mkEnableOption "custom Emacs configuration";
@@ -16,7 +21,7 @@ in {
     
     package = mkOption {
       type = types.package;
-      default = pkgs.emacs29;
+      default = pkgs.emacs;
       description = "Emacs package to use";
     };
     
@@ -28,6 +33,9 @@ in {
   };
 
   config = mkIf cfg.enable {
+    home.sessionVariables = {
+      NIXMACS_LOGO_PATH = "${./config/nix_emacs_logo_small.png}";
+    };
     home.packages = [
       (pkgs.emacsWithPackages (epkgs: with epkgs; [
         # Your default packages here
