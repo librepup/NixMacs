@@ -37,19 +37,7 @@ let
   };
   
   # Create the configured Emacs with packages FIRST
-  configuredEmacs = (pkgs.emacs.pkgs.override {
-    overrides = final: prev: {
-      exwm = final.melpaPackages.exwm.overrideAttrs (old: {
-        version = "0.34";
-        src = final.fetchFromGitHub {
-          owner = "emacs-exwm";
-          repo = "exwm";
-          rev = "254fa6c43f2e2c29f87dcac404a054a393a6a0ea";
-          sha256 = "sha256-7Z8vkmkMFsZnBfiadoKNiaJd1+RvCr2OxW1EiY9xY4s=";
-        };
-      });
-    };
-  }).withPackages (epkgs: with epkgs; [
+  configuredEmacs = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
     use-package
     color-theme-sanityinc-tomorrow
     company
@@ -76,9 +64,17 @@ let
     impatient-mode
     simple-httpd
     hoon-mode
-    exwm
-  ]++ (cfg.extraPackages epkgs));
-  
+    (melpaPackages.exwm.overrideAttrs (old: {
+      version = "0.34";
+      src = pkgs.fetchFromGitHub {
+        owner = "emacs-exwm";
+        repo = "exwm";
+        rev = "254fa6c43f2e2c29f87dcac404a054a393a6a0ea";
+        sha256 = "sha256-7Z8vkmkMFsZnBfiadoKNiaJd1+RvCr2OxW1EiY9xY4s=";
+      };
+    }))
+  ] ++ (cfg.extraPackages epkgs));
+
   # Then create wrapper that references it
   nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
     exec ${configuredEmacs}/bin/emacs "$@"
