@@ -73,11 +73,10 @@ configuredEmacs = let
   myEmacsPackages = pkgs.emacsPackagesFor pkgs.emacs;
   fixedEmacsPackages = myEmacsPackages.overrideScope (efinal: eprev: {
     exwm = eprev.exwm.overrideAttrs (old: {
-      src = pkgs.fetchFromGitHub {
-        owner = "emacs-exwm";
-        repo = "exwm";
-        rev = "0.34";
+      src = pkgs.fetchzip {
+        url = "https://github.com/emacs-exwm/exwm/archive/refs/tags/0.34.zip";
         hash = "sha256-7Z8vkmkMFsZnBfiadoKNiaJd1+RvCr2OxW1EiY9xY4s=";
+        stripRoot = true;
       };
     });
   });
