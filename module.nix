@@ -133,15 +133,5 @@ in {
     home.file.".exwm.el" = {
       source = exwmDotEl;
     };
-
-    # EXWM Desktop Entry
-    home.file.".local/share/xsessions/nixmacs-exwm.desktop".text = ''
-      [Desktop Entry]
-      Name=EXWM (nixmacs)
-      Comment=Emacs EXWM Window Manager
-      Exec=${nixmacs}/bin/${cfg.binaryName}
-      Type=Application
-      DesktopNames=EXWM
-    '';
   };
 }
