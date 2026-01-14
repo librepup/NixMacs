@@ -65,6 +65,7 @@ let
     impatient-mode
     simple-httpd
     hoon-mode
+    exwm
   ] ++ (cfg.extraPackages epkgs));
 
   # Then create wrapper that references it
