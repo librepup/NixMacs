@@ -51,6 +51,8 @@ Enable a simple for of auto-completion preview using fancy dabbrev.
 #+END_SRC
 ** EXWM
 #+BEGIN_SRC emacs-lisp
+(require 'exwm)
+(require 'exwm-config)
 (when (and (eq window-system 'x) (featurep 'exwm))
   (load-file "~/.exwm.el"))
 #+END_SRC
