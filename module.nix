@@ -6,7 +6,8 @@ let
   cfg = config.nixMacs;
   logoImage = "${./config/nix_emacs_logo_small.png}";
 
-  exwmDotEl = ./config/exwm.el;
+  exwmQwerty = ./config/exwm-qwerty.el;
+  exwmColemak = ./config/exwm-colemak.el;
   
   customEorg = pkgs.runCommand "e.org" {} ''
     substitute ${./config/e.org} $out \
@@ -98,6 +99,19 @@ in {
       default = "nixmacs";
       description = "Name of the Emacs binary command";
     };
+    
+    exwm = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Enable EXWM Configuration";
+      };
+      layout = mkOption {
+        type = types.enum [ "qwerty" "colemak" ];
+        default = "qwerty";
+        description = "Keyboard Layout for EXWM";
+      };
+    };
   };
 
   config = mkIf cfg.enable {
@@ -130,8 +144,8 @@ in {
     };
 
     # EXWM Config File
-    home.file.".exwm.el" = {
-      source = exwmDotEl;
+    home.file.".exwm.el" = mkIf cfg.exwm.enable {
+      source = if cfg.exwm.layout == "colemak" then exwmColemak else exwmQwerty;
     };
   };
 }
