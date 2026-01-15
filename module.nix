@@ -37,28 +37,6 @@ let
     '';
   };
 
-  #exwmFixed = pkgs.stdenv.mkDerivation {
-  #  pname = "exwm";
-  #  version = "0.34";
-  #
-  #  src = pkgs.fetchFromGitHub {
-  #    owner = "emacs-exwm";
-  #    repo = "exwm";
-  #    rev = "0.34";
-  #    sha256 = "sha256-7Z8vkmkMFsZnBfiadoKNiaJd1+RvCr2OxW1EiY9xY4s=";
-  #  };
-  #  nativeBuildInputs = [ pkgs.emacs pkgs.emacsPackages.compat pkgs.emacsPackages.xelb ];
-  #
-  #  buildPhase = "true";
-  #
-  #  installPhase = ''
-  #    mkdir -p $out/share/emacs/site-lisp/exwm
-  #    cp *.el{,c} $out/share/emacs/site-lisp/exwm/
-  #    install -d $out/share/emacs/site-lisp
-  #  '';
-  #};
-
-  # Grok Suggested Fix
   exwmFixed = pkgs.emacsPackages.trivialBuild rec {
     pname = "exwm";
     version = "0.34";
