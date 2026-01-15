@@ -117,7 +117,9 @@ in {
   config = mkIf cfg.enable {
     home.sessionVariables = {
       NIXMACS_LOGO_PATH = logoImage;
-    };
+    } // (optionalAttrs cfg.exwm.enable {
+      NIXMACS_EXWM_LAYOUT = cfg.exwm.layout;
+    });
     
     home.packages = [
       nixmacs  # Only install the wrapper, not both!
