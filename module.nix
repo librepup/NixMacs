@@ -37,7 +37,7 @@ let
     '';
   };
 
-  exwm = pkgs.stdenv.mkDerivation {
+  exwmFixed = pkgs.stdenv.mkDerivation {
     pname = "exwm";
     version = "0.34";
 
@@ -86,6 +86,7 @@ let
     impatient-mode
     simple-httpd
     hoon-mode
+    exwmFixed
   ] ++ (cfg.extraPackages epkgs));
 
   # Then create wrapper that references it
