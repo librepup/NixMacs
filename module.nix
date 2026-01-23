@@ -85,6 +85,9 @@ let
     compat
     xelb
     nickel-mode
+    iedit
+    anzu
+    visual-regexp
   ] ++ (cfg.extraPackages epkgs));
 
   # Then create wrapper that references it
