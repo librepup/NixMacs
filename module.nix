@@ -248,13 +248,18 @@ in {
 
     home.file.".emacs" = {
       text = ''
-        (let ((orgfile "~/.e.org")
-              (elfile "~/.e.el"))
+        (let ((orgfile (expand-file-name "~/.e.org"))
+              (elfile  (expand-file-name "~/.e.el")))
           (when (or (not (file-exists-p elfile))
                     (file-newer-than-file-p orgfile elfile))
             (require 'org)
+            ;; Force tangling to the specific elfile path
             (org-babel-tangle-file orgfile elfile))
-          (load-file elfile))
+  
+          ;; Safety check: only load if the file actually exists now
+          (if (file-exists-p elfile)
+              (load-file elfile)
+            (message "Warning: %s could not be generated!" elfile)))
       '';
     };
     
