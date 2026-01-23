@@ -50,7 +50,9 @@ Enable a simple for of auto-completion preview using fancy dabbrev.
 (global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
 #+END_SRC
 ** Sudo-Edit
+#+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x e") #'sudo-edit)
+#+END_SRC
 ** EXWM
 #+BEGIN_SRC emacs-lisp
 (require 'exwm)
