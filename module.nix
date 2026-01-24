@@ -9,10 +9,31 @@ let
 
   exwmQwerty = ./config/exwm-qwerty.el;
   exwmColemak = ./config/exwm-colemak.el;
-  
+
   customEorg = pkgs.runCommand "e.org" {} ''
     substitute ${./config/e.org} $out \
       --replace "~/Pictures/nix_emacs_logo_small.png" "${logoImage}"
+  '';
+
+  fuwamocoThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'fuwamoco t)
+    #+END_SRC
+  '';
+
+  marnieThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'marnie t)
+    #+END_SRC
+  '';
+
+  gruvboxThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'gruvbox-dark-medium t)
+    #+END_SRC
   '';
 
   hoon-mode = pkgs.stdenv.mkDerivation {
@@ -176,7 +197,7 @@ let
     pdf-tools
     magit
   ] ++ (cfg.extraPackages epkgs));
-  
+
   # Then create wrapper that references it
   nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
     exec ${configuredEmacsX11}/bin/emacs "$@"
@@ -185,23 +206,23 @@ let
   nixmacs-wayland = pkgs.writeShellScriptBin "${cfg.binaryName}-wayland" ''
     exec ${configuredEmacsWayland}/bin/emacs "$@"
   '';
-  
+
 in {
   options.nixMacs = {
     enable = mkEnableOption "custom Emacs configuration";
-    
+
     home = mkOption {
       type = types.str;
       default = config.home.homeDirectory or "/home/${config.home.username or "user"}";
       description = "Home directory path";
     };
-    
+
     package = mkOption {
       type = types.package;
       default = pkgs.emacs;
       description = "Emacs package to use";
     };
-    
+
     extraPackages = mkOption {
       type = types.functionTo (types.listOf types.package);
       default = epkgs: with epkgs; [];
@@ -222,7 +243,27 @@ in {
         description = "Whether to build a Wayland Compatible NixMacs Pkg";
       };
     };
-    
+
+    themes = {
+      fuwamoco = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Fuwamoco Theme/Colorscheme";
+      };
+      marnie = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Marnie Theme/Colorscheme";
+      };
+      gruvbox = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Gruvbox Theme/Colorscheme";
+      };
+    };
     exwm = {
       enable = mkOption {
         type = types.bool;
@@ -238,12 +279,23 @@ in {
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = (lib.count (x: x) [
+          cfg.themes.fuwamoco
+          cfg.themes.marnie
+          cfg.themes.gruvbox
+        ]) <= 1;
+        message = "Error: Only one Theme/Colorscheme can be enabled at a time!";
+      }
+    ];
+
     home.sessionVariables = {
       NIXMACS_LOGO_PATH = logoImage;
     } // (optionalAttrs cfg.exwm.enable {
       NIXMACS_EXWM_LAYOUT = cfg.exwm.layout;
     });
-    
+
     home.packages = [
       nixmacs  # Only install the wrapper, not both!
       pkgs.rust-analyzer
@@ -261,17 +313,28 @@ in {
             (require 'org)
             ;; Force tangling to the specific elfile path
             (org-babel-tangle-file orgfile elfile))
-  
+
           ;; Safety check: only load if the file actually exists now
           (if (file-exists-p elfile)
               (load-file elfile)
             (message "Warning: %s could not be generated!" elfile)))
       '';
     };
-    
+
     # Use the MODIFIED e.org with substituted path
     home.file.".e.org" = {
-      source = customEorg;
+      text = builtins.readFile customEorg
+        + optionalString cfg.themes.fuwamoco fuwamocoThemeOrg
+        + optionalString cfg.themes.marnie marnieThemeOrg
+        + optionalString cfg.themes.gruvbox gruvboxThemeOrg;
+    };
+
+    # Install Themes
+    home.file.".nixmacs/themes/fuwamoco-theme.el" = mkIf cfg.themes.fuwamoco {
+      source = ./config/themes/fuwamoco-theme.el;
+    };
+    home.file.".nixmacs/themes/marnie-theme.el" = mkIf cfg.themes.marnie {
+      source = ./config/themes/marnie-theme.el;
     };
 
     # EXWM Config File
