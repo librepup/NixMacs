@@ -30,7 +30,8 @@
       (cyan "#FDA9D8")
       (bright-cyan "#FDA9D8")
       (white "#bcedf5")
-      (bright-white "#bcedf5"))
+      (bright-white "#bcedf5")
+      (bg-darker "#13090F"))
 
   (custom-theme-set-faces
    'fuwamoco
@@ -96,7 +97,7 @@
 
    ;; Company mode
    `(company-tooltip ((t (:background "#1E0F18" :foreground ,fg))))
-   `(company-tooltip-selection ((t (:background ,blue :foreground ,bg))))
+   `(company-tooltip-selection ((t (:background ,bg-darker :foreground ,bg)))) #ATAMA
    `(company-tooltip-common ((t (:foreground ,cyan :weight bold))))
 
    ;; Inline completion (corfu, company-preview, etc.)
