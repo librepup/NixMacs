@@ -51,8 +51,7 @@ Enable a simple for of auto-completion preview using fancy dabbrev.
 #+END_SRC
 ** Sudo-Edit
 #+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'sudo-edit
-  (global-set-key (kbd "C-x e") #'sudo-edit))
+(global-set-key (kbd "C-x e") #'sudo-edit)
 #+END_SRC
 ** EXWM
 #+BEGIN_SRC emacs-lisp
