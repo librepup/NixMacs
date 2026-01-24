@@ -41,6 +41,24 @@ Setup the colorscheme and the font size.
   (load-theme 'gruvbox-dark-medium t)
   (set-face-attribute 'default nil :height 125)
 #+END_SRC
+** General Settings
+#+BEGIN_SRC emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+(delete-selection-mode 1)
+(electric-pair-mode 1)
+(global-subword-mode 1)
+(setq-default indent-tabs-mode nil
+              tab-width 2)
+(setq require-final-newline t)
+(add-hook 'before-save-hook #'delete-trailing-whitespace)
+(global-hl-line-mode 1)
+(blink-cursor-mode 0)
+#+END_SRC
+** Magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :ensure t)
+#+END_SRC
 ** Fancy Dabbrev (Simple Auto-Completion)
 Enable a simple for of auto-completion preview using fancy dabbrev.
 #+BEGIN_SRC emacs-lisp
