@@ -97,7 +97,7 @@
 
    ;; Company mode
    `(company-tooltip ((t (:background "#1E0F18" :foreground ,fg))))
-   `(company-tooltip-selection ((t (:background ,bg-darker :foreground ,bg)))) #ATAMA
+   `(company-tooltip-selection ((t (:background ,bg-darker :foreground ,bg))))
    `(company-tooltip-common ((t (:foreground ,cyan :weight bold))))
 
    ;; Inline completion (corfu, company-preview, etc.)
