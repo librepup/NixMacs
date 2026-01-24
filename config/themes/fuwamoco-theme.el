@@ -95,9 +95,15 @@
    `(org-block-end-line ((t (:foreground ,bright-black :slant italic))))
 
    ;; Company mode
-   `(company-tooltip ((t (:background ,bright-black :foreground ,fg))))
+   `(company-tooltip ((t (:background "#1E0F18" :foreground ,fg))))
    `(company-tooltip-selection ((t (:background ,blue :foreground ,bg))))
    `(company-tooltip-common ((t (:foreground ,cyan :weight bold))))
+
+   ;; Inline completion (corfu, company-preview, etc.)
+   `(company-preview ((t (:background "#1E0F18" :foreground ,bright-black))))
+   `(company-preview-common ((t (:background "#1E0F18" :foreground ,cyan))))
+   `(corfu-default ((t (:background "#1E0F18" :foreground ,fg))))
+   `(corfu-current ((t (:background ,blue :foreground ,bg))))
 
    ;; Parentheses matching
    `(show-paren-match ((t (:background ,magenta :foreground ,bg :weight bold))))
