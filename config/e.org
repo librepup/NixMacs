@@ -51,6 +51,10 @@ Setup the colorscheme and the font size.
 (setq-default cursor-type 'bar)
 (blink-cursor-mode 0)
 #+END_SRC
+** Indent Bars
+#+BEGIN_SRC emacs-lisp
+(indent-bars-mode)
+#+END_SRC
 ** Beacon
 Enable the Beacon Line-Highlighter Globally.
 #+BEGIN_SRC emacs-lisp
@@ -182,6 +186,7 @@ Set up Hoon syntax highlighting with hoon-mode and the included rune dictionary.
 Recognize and highlight Nix/NixOS files.
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
+(add-to-list 'company-backends 'company-nixos-options)
 #+END_SRC
 *** Arduino Recognition
 Recognize and highlight Arduino Code.

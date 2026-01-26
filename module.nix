@@ -117,6 +117,8 @@ let
     beacon
     doom-modeline
     vim-tab-bar
+    indent-bars
+    company-nixos-options
   ] ++ (cfg.extraPackages epkgs));
 
   configuredEmacsX11 = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
@@ -161,6 +163,8 @@ let
     beacon
     doom-modeline
     vim-tab-bar
+    indent-bars
+    company-nixos-options
   ] ++ (cfg.extraPackages epkgs));
 
   configuredEmacsWayland = pkgs.emacs-pgtk.pkgs.withPackages (epkgs: with epkgs; [
@@ -205,6 +209,8 @@ let
     beacon
     doom-modeline
     vim-tab-bar
+    indent-bars
+    company-nixos-options
   ] ++ (cfg.extraPackages epkgs));
 
   # Then create wrapper that references it

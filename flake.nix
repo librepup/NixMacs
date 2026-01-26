@@ -9,8 +9,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  
-  outputs = { self, nixpkgs, home-manager, flake-utils, ... }: 
+
+  outputs = { self, nixpkgs, home-manager, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
 
@@ -30,7 +30,7 @@
           cp hoon-mode.el hoon-dictionary.json $out/share/emacs/site-lisp/
         '';
       };
-      
+
       # Standalone nixmacs builder (duplicate logic from module.nix)
       nixmacs = pkgs.writeShellScriptBin "nixmacs" ''
         exec ${pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
@@ -40,7 +40,7 @@
           rustic wttrin hydra all-the-icons haskell-mode arduino-mode
           flycheck gruvbox-theme bongo impatient-mode simple-httpd
           compat xelb nickel-mode iedit anzu visual-regexp try sudo-edit
-          hoon-mode
+          hoon-mode pdf-tools magit beacon doom-modeline vim-tab-bar indent-bars company-nixos-options
         ] ++ [
           # Add your custom derivations here if needed
         ])}/bin/emacs "$@"
