@@ -115,6 +115,7 @@ let
     pdf-tools
     magit
     beacon
+    doom-modeline
   ] ++ (cfg.extraPackages epkgs));
 
   configuredEmacsX11 = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
@@ -157,6 +158,7 @@ let
     pdf-tools
     magit
     beacon
+    doom-modeline
   ] ++ (cfg.extraPackages epkgs));
 
   configuredEmacsWayland = pkgs.emacs-pgtk.pkgs.withPackages (epkgs: with epkgs; [
@@ -199,6 +201,7 @@ let
     pdf-tools
     magit
     beacon
+    doom-modeline
   ] ++ (cfg.extraPackages epkgs));
 
   # Then create wrapper that references it
