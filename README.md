@@ -64,6 +64,8 @@ nixMacs = {
     fuwamoco = true;
     marnie = false;
     gruvbox = false;
+    templeos = false;
+    installAll = true; # Install all themes even if some are disabled. This doesn't enable the other themes, it merely installs them.
   };
   exwm = {
     enable = true; # Create "~/.exwm.el" File.
