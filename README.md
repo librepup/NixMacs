@@ -65,10 +65,11 @@ nixMacs = {
     marnie = false;
     gruvbox = false;
     templeos = false;
+    cappuccinoNoir = false;
     installAll = true; # Install all themes even if some are disabled. This doesn't enable the other themes, it merely installs them.
   };
   exwm = {
-    enable = true; # Create "~/.exwm.el" File.
+    enable = true; # Create "~/.nixmacs/config/exwm.el" File.
     layout = "qwerty"; # Can also be "colemak".
   };
   waylandPackage.enable = true; # Enable the creation of a "nixmacs-wayland" binary.
