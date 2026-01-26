@@ -408,6 +408,15 @@ Enable multiple cursors when pressing Ctrl+Shift+> and other keybinds to edit mu
 (global-set-key (kbd "TAB") 'fancy-dabbrev-expand)
 (setq ffap-bindings nil)
 (define-key mc/keymap (kbd "DEL") 'mc/backspace)
+
+(defun my/mc-switch-to-block ()
+  (setq-local cursor-type 'box))
+
+(defun my/mc-restore-cursor ()
+  (kill-local-variable 'cursor-type))
+
+(add-hook 'multiple-cursors-mode-enabled-hook #'my/mc-switch-to-block)
+(add-hook 'multiple-cursors-mode-disabled-hook #'my/mc-restore-cursor)
 #+END_SRC
 ** Image Dired
 This enables image perviews inside dired using image-dired when launched.
