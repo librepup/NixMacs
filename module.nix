@@ -36,6 +36,13 @@ let
     #+END_SRC
   '';
 
+  templeosThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'temple-os t)
+    #+END_SRC
+  '';
+
   hoon-mode = pkgs.stdenv.mkDerivation {
     pname = "hoon-mode";
     version = "latest";
@@ -185,6 +192,12 @@ in {
         example = true;
         description = "Whether to enable or disable the builtin Gruvbox Theme/Colorscheme";
       };
+      templeos = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin TempleOS Theme/Colorscheme";
+      };
     };
     exwm = {
       enable = mkOption {
@@ -207,6 +220,7 @@ in {
           cfg.themes.fuwamoco
           cfg.themes.marnie
           cfg.themes.gruvbox
+          cfg.themes.templeos
         ]) <= 1;
         message = "Error: Only one Theme/Colorscheme can be enabled at a time!";
       }
@@ -248,7 +262,8 @@ in {
       text = builtins.readFile customEorg
         + optionalString cfg.themes.fuwamoco fuwamocoThemeOrg
         + optionalString cfg.themes.marnie marnieThemeOrg
-        + optionalString cfg.themes.gruvbox gruvboxThemeOrg;
+        + optionalString cfg.themes.gruvbox gruvboxThemeOrg
+        + optionalString cfg.themes.templeos templeosThemeOrg;
     };
 
     # Install Themes
@@ -257,6 +272,9 @@ in {
     };
     home.file.".nixmacs/themes/marnie-theme.el" = mkIf cfg.themes.marnie {
       source = ./config/themes/marnie-theme.el;
+    };
+    home.file.".nixmacs/themes/temple-os-theme.el" = mkIf cfg.themes.templeos {
+      source = ./config/themes/temple-os-theme.el;
     };
 
     # EXWM Config File
