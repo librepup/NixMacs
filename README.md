@@ -74,4 +74,5 @@ nixMacs = {
 ```
 
 # Showcase
-![Showcase](https://raw.githubusercontent.com/nixpup/NixMacs/refs/heads/main/example.png)
+![Showcase 1](https://raw.githubusercontent.com/nixpup/NixMacs/refs/heads/main/nixmacs_demo_01.png)
+![Showcase 2](https://raw.githubusercontent.com/nixpup/NixMacs/refs/heads/main/nixmacs_demo_02.png)
