@@ -36,10 +36,12 @@ let
     #+END_SRC
   '';
 
+  templeosFont = pkgs.callPackage ./config/fonts/templeos/default.nix {};
   templeosThemeOrg = ''
     * Theme/Colorscheme
     #+BEGIN_SRC emacs-lisp
     (load-theme 'temple-os t)
+    (set-face-attribute 'default nil :font "TempleOS-10")
     #+END_SRC
   '';
 
@@ -238,7 +240,8 @@ in {
       pkgs.zathura
       pkgs.mpv
     ]
-    ++ lib.optional cfg.waylandPackage.enable nixmacs-wayland;
+    ++ lib.optional cfg.waylandPackage.enable nixmacs-wayland
+    ++ lib.optional cfg.themes.templeos templeosFont;
 
     home.file.".emacs" = {
       text = ''
