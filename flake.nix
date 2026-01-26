@@ -40,7 +40,7 @@
           rustic wttrin hydra all-the-icons haskell-mode arduino-mode
           flycheck gruvbox-theme bongo impatient-mode simple-httpd
           compat xelb nickel-mode iedit anzu visual-regexp try sudo-edit
-          hoon-mode pdf-tools magit beacon doom-modeline vim-tab-bar indent-bars company-nixos-options
+          hoon-mode pdf-tools magit beacon doom-modeline vim-tab-bar
         ] ++ [
           # Add your custom derivations here if needed
         ])}/bin/emacs "$@"
