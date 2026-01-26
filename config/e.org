@@ -56,6 +56,12 @@ Enable the Beacon Line-Highlighter Globally.
 #+BEGIN_SRC emacs-lisp
 (beacon-mode 1)
 #+END_SRC
+** Doom-Modeline
+Enable and automatically load doom-modeline-mode.
+#+BEGIN_SRC emacs-lisp
+(require 'doom-modeline)
+(doom-modeline-mode 1)
+#+END_SRC
 ** Fix Ctrl+Backspace when in Terminal
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-?") 'help-command)
