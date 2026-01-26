@@ -36,6 +36,13 @@ let
     #+END_SRC
   '';
 
+  cappuccinoNoirThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'cappuccino-noir t)
+    #+END_SRC
+  '';
+
   templeosFont = pkgs.callPackage ./config/fonts/templeos/default.nix {};
   templeosThemeOrg = ''
     * Theme/Colorscheme
@@ -48,7 +55,6 @@ let
   hoon-mode = pkgs.stdenv.mkDerivation {
     pname = "hoon-mode";
     version = "latest";
-
     src = pkgs.fetchFromGitHub {
       owner = "urbit";
       repo  = "hoon-mode.el";
@@ -56,12 +62,9 @@ let
       rev = "master";
       sha256 = "sha256-gOmh3+NxAIUa2VcmFFqavana8r6LT9VmnrJOFLCF/xw=";
     };
-
     nativeBuildInputs = [ pkgs.emacs ]; # or just pkgs.emacs for byte-compiling
-
     # If there is no build system, skip straight to install.
     buildPhase = "true";
-
     installPhase = ''
       install -d $out/share/emacs/site-lisp
       install -m644 hoon-mode.el hoon-dictionary.json $out/share/emacs/site-lisp/
@@ -141,31 +144,16 @@ let
 in {
   options.nixMacs = {
     enable = mkEnableOption "custom Emacs configuration";
-
-    home = mkOption {
-      type = types.str;
-      default = config.home.homeDirectory or "/home/${config.home.username or "user"}";
-      description = "Home directory path";
-    };
-
-    package = mkOption {
-      type = types.package;
-      default = pkgs.emacs;
-      description = "Emacs package to use";
-    };
-
     extraPackages = mkOption {
       type = types.functionTo (types.listOf types.package);
       default = epkgs: with epkgs; [];
       description = "Extra Emacs packages to install";
     };
-
     binaryName = mkOption {
       type = types.str;
       default = "nixmacs";
       description = "Name of the Emacs binary command";
     };
-
     waylandPackage = {
       enable = mkOption {
         type = types.bool;
@@ -174,7 +162,6 @@ in {
         description = "Whether to build a Wayland Compatible NixMacs Pkg";
       };
     };
-
     themes = {
       fuwamoco = mkOption {
         type = types.bool;
@@ -199,6 +186,12 @@ in {
         default = false;
         example = true;
         description = "Whether to enable or disable the builtin TempleOS Theme/Colorscheme";
+      };
+      cappuccinoNoir = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Cappuccino Noir Theme/Colorscheme";
       };
       installAll = mkOption {
         type = types.bool;
@@ -251,8 +244,8 @@ in {
 
     home.file.".emacs" = {
       text = ''
-        (let ((orgfile (expand-file-name "~/.e.org"))
-              (elfile  (expand-file-name "~/.e.el")))
+        (let ((orgfile (expand-file-name "~/.nixmacs/config/e.org"))
+              (elfile  (expand-file-name "~/.nixmacs/config/e.el")))
           (when (or (not (file-exists-p elfile))
                     (file-newer-than-file-p orgfile elfile))
             (require 'org)
@@ -267,7 +260,7 @@ in {
     };
 
     # Use the MODIFIED e.org with substituted path
-    home.file.".e.org" = {
+    home.file.".nixmacs/config/e.org" = {
       text = builtins.readFile customEorg
         + optionalString cfg.themes.fuwamoco fuwamocoThemeOrg
         + optionalString cfg.themes.marnie marnieThemeOrg
@@ -285,9 +278,12 @@ in {
     home.file.".nixmacs/themes/temple-os-theme.el" = mkIf (cfg.themes.templeos || cfg.themes.installAll) {
       source = ./config/themes/temple-os-theme.el;
     };
+    home.file.".nixmacs/themes/cappuccino-noir-theme.el" = mkIf (cfg.themes.cappuccinoNoir || cfg.themes.installAll) {
+      source = ./config/themes/cappuccino-noir-theme.el;
+    };
 
     # EXWM Config File
-    home.file.".exwm.el" = mkIf cfg.exwm.enable {
+    home.file.".nixmacs/config/exwm.el" = mkIf cfg.exwm.enable {
       source = if cfg.exwm.layout == "colemak" then exwmColemak else exwmQwerty;
     };
   };
