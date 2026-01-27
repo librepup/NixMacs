@@ -178,10 +178,64 @@ Set up Hoon syntax highlighting with hoon-mode and the included rune dictionary.
                 (define-key hoon-mode-map (kbd "C-c b") 'hoon-eval-buffer-in-herb))))
     (add-to-list 'auto-mode-alist '("\\.hoon\\'" . hoon-mode))
 #+END_SRC
-*** Nix Recognition
+*** Nix
+**** Recognition
 Recognize and highlight Nix/NixOS files.
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
+#+END_SRC
+**** Auto-Indent and Insert
+#+BEGIN_SRC emacs-lisp
+(defun my-nix-indent-line ()
+  "Indent current line for Nix mode, handling '' strings."
+  (interactive)
+  (let ((indent (nix-mode--calculate-indent)))
+    (when indent
+      (indent-line-to indent))))
+
+(defun nix-mode--calculate-indent ()
+  "Calculate indentation for current line."
+  (save-excursion
+    (beginning-of-line)
+    (if (bobp)
+        0
+      (forward-line -1)
+      (end-of-line)
+      (let ((prev-indent (current-indentation))
+            (prev-line (buffer-substring-no-properties
+                        (line-beginning-position)
+                        (line-end-position))))
+        (cond
+         ;; Check if previous line ends with ''
+         ((string-match-p "''\\s-*$" prev-line)
+          (+ prev-indent 2))
+         ;; Check if previous line ends with { or [
+         ((string-match-p "[{[]\\s-*$" prev-line)
+          (+ prev-indent 2))
+         ;; Default: same indentation as previous line
+         (t prev-indent))))))
+
+(add-hook 'nix-mode-hook
+          (lambda ()
+            (setq-local indent-line-function 'my-nix-indent-line)))
+
+(defun my-nix-electric-pair-quote ()
+  "Handle electric pairing for '' in nix-mode."
+  (interactive)
+  (insert "'")
+  (when (and (eq major-mode 'nix-mode)
+             (looking-back "''" 2)
+             (looking-at "\\s-*$"))
+    (let ((current-indent (current-indentation)))
+      (save-excursion
+        (newline)
+        (indent-line-to current-indent)
+        (insert "'';"))
+      (newline-and-indent))))
+
+(add-hook 'nix-mode-hook
+          (lambda ()
+            (local-set-key (kbd "'") 'my-nix-electric-pair-quote)))
 #+END_SRC
 *** Arduino Recognition
 Recognize and highlight Arduino Code.
@@ -667,6 +721,10 @@ A few sane fixes to make it more comfortable to use the M-x term terminal inside
     (rename-buffer term-buffer-name)))
 
 (global-set-key (kbd "C-c <return>") #'my-new-term)
+
+(unless (display-graphic-p)
+  (global-set-key (kbd "M->") #'mc/mark-next-like-this)
+  (global-set-key (kbd "M-<") #'mc/mark-previous-like-this))
 #+END_SRC
 ** Org Insert Helper
 The org insert helper is what we use to show the available options defined previously to insert org and LaTeX snippets for convenience.
