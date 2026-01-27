@@ -184,6 +184,38 @@ Recognize and highlight Nix/NixOS files.
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
 #+END_SRC
+**** Auto-Indent
+#+BEGIN_SRC emacs-lisp
+(defun my-nix-indent-line ()
+  "Indent current line for Nix mode, handling '' strings."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (if (bobp)
+        (indent-line-to 0)
+      (let ((prev-line-content
+             (save-excursion
+               (forward-line -1)
+               (buffer-substring-no-properties
+                (line-beginning-position)
+                (line-end-position))))
+            (prev-indent
+             (save-excursion
+               (forward-line -1)
+               (current-indentation))))
+        (if (string-match-p "''\\s-*$" prev-line-content)
+            ;; Previous line ends with '', indent further
+            (indent-line-to (+ prev-indent 2))
+          ;; Otherwise use nix-mode's default indentation
+          (nix-indent-line)))))
+  ;; Move cursor to proper position if at beginning of line
+  (when (< (current-column) (current-indentation))
+    (move-to-column (current-indentation))))
+
+(add-hook 'nix-mode-hook
+          (lambda ()
+            (setq-local indent-line-function 'my-nix-indent-line)))
+#+END_SRC
 **** Auto-Insert
 #+BEGIN_SRC emacs-lisp
 (defun my-nix-electric-pair-quote ()
