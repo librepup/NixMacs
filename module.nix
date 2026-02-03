@@ -29,6 +29,13 @@ let
     #+END_SRC
   '';
 
+  guixThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'guix t)
+    #+END_SRC
+  '';
+
   gruvboxThemeOrg = ''
     * Theme/Colorscheme
     #+BEGIN_SRC emacs-lisp
@@ -187,6 +194,12 @@ in {
         example = true;
         description = "Whether to enable or disable the builtin TempleOS Theme/Colorscheme";
       };
+      guix = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Guix Theme/Colorscheme";
+      };
       cappuccinoNoir = mkOption {
         type = types.bool;
         default = false;
@@ -221,6 +234,7 @@ in {
           cfg.themes.fuwamoco
           cfg.themes.marnie
           cfg.themes.gruvbox
+          cfg.themes.guix
           cfg.themes.templeos
           cfg.themes.cappuccinoNoir
         ]) <= 1;
@@ -267,10 +281,14 @@ in {
         + optionalString cfg.themes.marnie marnieThemeOrg
         + optionalString cfg.themes.cappuccinoNoir cappuccinoNoirThemeOrg
         + optionalString cfg.themes.gruvbox gruvboxThemeOrg
+        + optionalString cfg.themes.guix guixThemeOrg
         + optionalString cfg.themes.templeos templeosThemeOrg;
     };
 
     # Install Themes
+    home.file.".nixmacs/themes/guix-theme.el" = mkIf (cfg.themes.guix || cfg.themes.installAll) {
+      source = ./config/themes/guix-theme.el;
+    };
     home.file.".nixmacs/themes/fuwamoco-theme.el" = mkIf (cfg.themes.fuwamoco || cfg.themes.installAll) {
       source = ./config/themes/fuwamoco-theme.el;
     };
