@@ -69,6 +69,15 @@ Enable and automatically load doom-modeline-mode.
 (require 'doom-modeline)
 (doom-modeline-mode 1)
 #+END_SRC
+Show the full path to the currently open file in the modeline.
+#+BEGIN_SRC emacs-lisp
+(setq frame-title-format
+      '("" invocation-name ": "
+        (:eval
+         (if buffer-file-name
+             (abbreviate-file-name buffer-file-name)
+           "%b"))))
+#+END_SRC
 ** Fix Ctrl+Backspace when in Terminal
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-?") 'help-command)
