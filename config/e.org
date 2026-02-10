@@ -29,6 +29,16 @@ This .e.org File is a complete Emacs configuration setup with auto-completion an
     #+END_EXAMPLE
 ...if you provided these two files, your fresh new Emacs should be ready to go and begin by automatically installing all the packages you need. After this process is done, you may need to restart Emacs once.
 * Packages and Related
+** Reduce Startup Time
+#+BEGIN_SRC emacs-lisp
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.6)
+
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (* 50 1000 1000)
+                  gc-cons-percentage 0.1)))
+#+END_SRC
 ** Colorscheme and Font Size
 Setup the colorscheme and the font size.
 #+BEGIN_SRC emacs-lisp
