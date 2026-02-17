@@ -273,6 +273,15 @@ Recognize and hightlight Haskell files.
 #+END_SRC
 * General Settings
 In this chapter we are setting up some sane defaults and useful options for Emacs.
+** Autosaves
+Send autosaved files to a specific directory so they don't pollute every working directory you ever exit
+a file in without saving.
+#+BEGIN_SRC emacs-lisp
+(make-directory "~/.nixmacs/autosaves" t)
+(setq auto-save-file-name-transforms
+      `((".*" "~/.nixmacs/autosaves/" t)))
+(setq delete-auto-save-files t)
+#+END_SRC
 ** Fix potential Cursor Lag
 This is optional and I have not noticed its effect yet, but supposedly this option can fix cursor lag if it exists.
 #+BEGIN_SRC emacs-lisp
