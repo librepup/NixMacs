@@ -22,6 +22,13 @@ let
     #+END_SRC
   '';
 
+  plan9ThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'plan9 t)
+    #+END_SRC
+  '';
+
   fuwamocoThemeOrg = ''
     * Theme/Colorscheme
     #+BEGIN_SRC emacs-lisp
@@ -183,6 +190,12 @@ in {
         example = true;
         description = "Whether to enable or disable the builtin Fuwamoco Theme/Colorscheme";
       };
+      plan9 = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Plan9 Theme/Colorscheme";
+      };
       marnie = mkOption {
         type = types.bool;
         default = false;
@@ -251,6 +264,7 @@ in {
           cfg.themes.templeos
           cfg.themes.cappuccinoNoir
           cfg.themes.acme
+          cfg.themes.plan9
         ]) <= 1;
         message = "Error: Only one Theme/Colorscheme can be enabled at a time!";
       }
@@ -300,6 +314,9 @@ in {
     };
 
     # Install Themes
+    home.file.".nixmacs/themes/plan9-theme.el" = mkIf (cfg.themes.plan9 || cfg.themes.installAll) {
+      source = ./config/themes/plan9-theme.el;
+    };
     home.file.".nixmacs/themes/acme-theme.el" = mkIf (cfg.themes.acme || cfg.themes.installAll) {
       source = ./config/themes/acme-theme.el;
     };
