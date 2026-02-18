@@ -15,6 +15,13 @@ let
       --replace "~/Pictures/nix_emacs_logo_small.png" "${logoImage}"
   '';
 
+  acmeThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'acme t)
+    #+END_SRC
+  '';
+
   fuwamocoThemeOrg = ''
     * Theme/Colorscheme
     #+BEGIN_SRC emacs-lisp
@@ -206,6 +213,12 @@ in {
         example = true;
         description = "Whether to enable or disable the builtin Cappuccino Noir Theme/Colorscheme";
       };
+      acme = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Acme Theme/Colorscheme";
+      };
       installAll = mkOption {
         type = types.bool;
         default = false;
@@ -237,6 +250,7 @@ in {
           cfg.themes.guix
           cfg.themes.templeos
           cfg.themes.cappuccinoNoir
+          cfg.themes.acme
         ]) <= 1;
         message = "Error: Only one Theme/Colorscheme can be enabled at a time!";
       }
@@ -286,6 +300,9 @@ in {
     };
 
     # Install Themes
+    home.file.".nixmacs/themes/acme-theme.el" = mkIf (cfg.themes.acme || cfg.themes.installAll) {
+      source = ./config/themes/acme-theme.el;
+    };
     home.file.".nixmacs/themes/guix-theme.el" = mkIf (cfg.themes.guix || cfg.themes.installAll) {
       source = ./config/themes/guix-theme.el;
     };
