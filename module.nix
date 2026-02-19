@@ -15,6 +15,20 @@ let
       --replace "~/Pictures/nix_emacs_logo_small.png" "${logoImage}"
   '';
 
+  jungleThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'jungle t)
+    #+END_SRC
+  '';
+
+  jungleThemeVibrantOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'jungle t)
+    #+END_SRC
+  '';
+
   acmeThemeOrg = ''
     * Theme/Colorscheme
     #+BEGIN_SRC emacs-lisp
@@ -184,6 +198,18 @@ in {
       };
     };
     themes = {
+      jungle = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Jungle Theme/Colorscheme";
+      };
+      jungleVibrant = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Whether to enable or disable the builtin Jungle (Vibrant) Theme/Colorscheme";
+      };
       fuwamoco = mkOption {
         type = types.bool;
         default = false;
@@ -265,6 +291,8 @@ in {
           cfg.themes.cappuccinoNoir
           cfg.themes.acme
           cfg.themes.plan9
+          cfg.themes.jungle
+          cfg.themes.jungleVibrant
         ]) <= 1;
         message = "Error: Only one Theme/Colorscheme can be enabled at a time!";
       }
@@ -310,12 +338,22 @@ in {
         + optionalString cfg.themes.cappuccinoNoir cappuccinoNoirThemeOrg
         + optionalString cfg.themes.gruvbox gruvboxThemeOrg
         + optionalString cfg.themes.guix guixThemeOrg
+        + optionalString cfg.themes.acme acmeThemeOrg
+        + optionalString cfg.themes.plan9 plan9ThemeOrg
+        + optionalString cfg.themes.jungle jungleThemeOrg
+        + optionalString cfg.themes.jungleVibrant jungleThemeVibrantOrg
         + optionalString cfg.themes.templeos templeosThemeOrg;
     };
 
     # Install Themes
     home.file.".nixmacs/themes/plan9-theme.el" = mkIf (cfg.themes.plan9 || cfg.themes.installAll) {
       source = ./config/themes/plan9-theme.el;
+    };
+    home.file.".nixmacs/themes/jungle-theme.el" = mkIf (cfg.themes.jungle || cfg.themes.installAll) {
+      source = ./config/themes/jungle-theme.el;
+    };
+    home.file.".nixmacs/themes/jungle-vibrant-theme.el" = mkIf (cfg.themes.jungleVibrant || cfg.themes.installAll) {
+      source = ./config/themes/jungle-vibrant-theme.el;
     };
     home.file.".nixmacs/themes/acme-theme.el" = mkIf (cfg.themes.acme || cfg.themes.installAll) {
       source = ./config/themes/acme-theme.el;
