@@ -25,7 +25,7 @@ let
   jungleThemeVibrantOrg = ''
     * Theme/Colorscheme
     #+BEGIN_SRC emacs-lisp
-    (load-theme 'jungle t)
+    (load-theme 'jungle-vibrant t)
     #+END_SRC
   '';
 
