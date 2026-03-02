@@ -158,7 +158,6 @@ let
     try
     sudo-edit
     pdf-tools
-    magit
     beacon
     doom-modeline
     vim-tab-bar
