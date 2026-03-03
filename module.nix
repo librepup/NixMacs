@@ -168,10 +168,12 @@ let
 
   # Then create wrapper that references it
   nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
+    unset EMACSLOADPATH
     exec ${configuredEmacsX11}/bin/emacs "$@"
   '';
 
   nixmacs-wayland = pkgs.writeShellScriptBin "${cfg.binaryName}-wayland" ''
+    unset EMACSLOADPATH
     exec ${configuredEmacsWayland}/bin/emacs "$@"
   '';
 
