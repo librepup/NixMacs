@@ -161,6 +161,7 @@ let
     beacon
     doom-modeline
     vim-tab-bar
+    erc-image
   ] ++ (cfg.extraPackages epkgs);
 
   configuredEmacsX11 = pkgs.emacs.pkgs.withPackages includedPackages;
