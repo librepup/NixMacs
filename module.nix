@@ -162,6 +162,7 @@ let
     doom-modeline
     vim-tab-bar
     erc-image
+    dired-subtree
   ] ++ (cfg.extraPackages epkgs);
 
   configuredEmacsX11 = pkgs.emacs.pkgs.withPackages includedPackages;

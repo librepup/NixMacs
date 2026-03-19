@@ -134,6 +134,11 @@ This Chapter sets up auto-suggestions for various programming languages, and a l
 ;; If you use web-mode, use this instead:
 ;; (add-hook 'web-mode-hook #'my/html-bind-live-preview-key)
 #+END_SRC
+*** Dired-Subtree
+#+BEGIN_SRC emacs-lisp
+(define-key dired-mode-map "i" 'dired-subtree-insert)
+(define-key dired-mode-map "b" 'dired-subtree-remove)
+#+END_SRC
 *** Company
 Set up a basic version of company.
 #+BEGIN_SRC emacs-lisp
