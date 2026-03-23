@@ -174,18 +174,26 @@ let
 
   configuredEmacsX11 = pkgs.emacs.pkgs.withPackages includedPackages;
   configuredEmacsWayland = pkgs.emacs-pgtk.pkgs.withPackages includedPackages;
-  emacsToUse = if cfg.wayland.enable then configuredEmacsWayland else configuredEmacsX11;
+
+  primaryEmacs = if (cfg.wayland.enable && !cfg.wayland.separatePackage) then configuredEmacsWayland else configuredEmacsX11;
 
   nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
     unset EMACSLOADPATH
-    exec ${emacsToUse}/bin/emacs "$@"
+    exec ${primaryEmacs}/bin/emacs "$@"
   '';
 
   nixmacs-client = pkgs.writeShellScriptBin "${cfg.binaryName}-client" ''
-    exec ${emacsToUse}/bin/emacsclient "$@"
+    exec ${primaryEmacs}/bin/emacsclient "$@"
   '';
 
-  nixmacs-full = [ nixmacs nixmacs-client ];
+  nixmacs-wayland = pkgs.writeShellScriptBin "${cfg.binaryName}-wayland" ''
+    unset EMACSLOADPATH
+    exec ${configuredEmacsWayland}/bin/emacs "$@"
+  '';
+
+  nixmacs-wayland-client = pkgs.writeShellScriptBin "${cfg.binaryName}-wayland-client" ''
+    exec ${configuredEmacsWayland}/bin/emacsclient "$@"
+  '';
 
   #nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
   #  unset EMACSLOADPATH
@@ -220,6 +228,12 @@ in {
         default = true;
         example = false;
         description = "Whether to enable Wayland Compatible NixMacs or not.";
+      };
+      separatePackage = mkOption {
+        type = types.bool;
+        default = true;
+        example = false;
+        description = "Whether to install the Wayland Package as a dual Package or not.";
       };
     };
     themes = {
@@ -340,8 +354,13 @@ in {
       pkgs.rust-analyzer
       pkgs.zathura
       pkgs.mpv
+      nixmacs
+      nixmacs-client
     ]
-    ++ nixmacs-full
+    ++ lib.optionals (cfg.wayland.enable && cfg.wayland.separatePackage) [
+      nixmacs-wayland
+      nixmacs-wayland-client
+    ]
     ++ lib.optional cfg.themes.templeos templeosFont;
 
     home.file.".emacs" = {
