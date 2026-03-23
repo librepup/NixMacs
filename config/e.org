@@ -123,7 +123,6 @@ Correctly set ANSI Colors for Interpretation of ANSI Escape Codes, and force-ref
        ansi-color-white])
 
 (setq ansi-color-map (ansi-color-make-color-map))
-␍
 (defun display-ansi-colors ()
   (interactive)
   (require 'ansi-color)
