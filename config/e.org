@@ -164,6 +164,7 @@ This Chapter sets up auto-suggestions for various programming languages, and a l
 #+END_SRC
 *** Dired-Subtree
 #+BEGIN_SRC emacs-lisp
+(require 'dired)
 (define-key dired-mode-map "i" 'dired-subtree-insert)
 (define-key dired-mode-map "b" 'dired-subtree-remove)
 #+END_SRC
