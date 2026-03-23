@@ -15,6 +15,13 @@ let
       --replace "~/Pictures/nix_emacs_logo_small.png" "${logoImage}"
   '';
 
+  filianThemeOrg = ''
+    * Theme/Colorscheme
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'filian t)
+    #+END_SRC
+  '';
+
   jungleThemeOrg = ''
     * Theme/Colorscheme
     #+BEGIN_SRC emacs-lisp
@@ -167,17 +174,32 @@ let
 
   configuredEmacsX11 = pkgs.emacs.pkgs.withPackages includedPackages;
   configuredEmacsWayland = pkgs.emacs-pgtk.pkgs.withPackages includedPackages;
+  emacsToUse = if cfg.wayland.enable then configuredEmacsWayland else configuredEmacsX11;
 
-  # Then create wrapper that references it
   nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
     unset EMACSLOADPATH
-    exec ${configuredEmacsX11}/bin/emacs "$@"
+    exec ${emacsToUse}/bin/emacs "$@"
   '';
 
-  nixmacs-wayland = pkgs.writeShellScriptBin "${cfg.binaryName}-wayland" ''
-    unset EMACSLOADPATH
-    exec ${configuredEmacsWayland}/bin/emacs "$@"
+  nixmacs-client = pkgs.writeShellScriptBin "${cfg.binaryName}-client" ''
+    exec ${emacsToUse}/bin/emacsclient "$@"
   '';
+
+  nixmacs-full = [ nixmacs nixmacs-client ];
+
+  #nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
+  #  unset EMACSLOADPATH
+  #  exec ${configuredEmacsX11}/bin/emacs "$@"
+  #'';
+
+  #nixmacs-wayland = pkgs.writeShellScriptBin "${cfg.binaryName}-wayland" ''
+  #  unset EMACSLOADPATH
+  #  exec ${configuredEmacsWayland}/bin/emacs "$@"
+  #'';
+
+  #nixmacs-client = pkgs.writeShellScriptBin "${cfg.binaryName}-client" ''
+  #  exec ${configuredEmacsX11}/bin/emacsclient "$@"
+  #'';
 
 in {
   options.nixMacs = {
@@ -192,12 +214,12 @@ in {
       default = "nixmacs";
       description = "Name of the Emacs binary command";
     };
-    waylandPackage = {
+    wayland = {
       enable = mkOption {
         type = types.bool;
         default = true;
         example = false;
-        description = "Whether to build a Wayland Compatible NixMacs Pkg";
+        description = "Whether to enable Wayland Compatible NixMacs or not.";
       };
     };
     themes = {
@@ -206,6 +228,12 @@ in {
         default = false;
         example = true;
         description = "Whether to enable or disable the builtin Jungle Theme/Colorscheme";
+      };
+      filian = mkOption {
+        type = types.bool;
+        default = true;
+        example = true;
+        description = "Whether to enable or disable the builtin Filian Theme/Colorscheme (based on Jungle Vibrant).";
       };
       jungleVibrant = mkOption {
         type = types.bool;
@@ -296,6 +324,7 @@ in {
           cfg.themes.plan9
           cfg.themes.jungle
           cfg.themes.jungleVibrant
+          cfg.themes.filian
         ]) <= 1;
         message = "Error: Only one Theme/Colorscheme can be enabled at a time!";
       }
@@ -308,12 +337,11 @@ in {
     });
 
     home.packages = [
-      nixmacs  # Only install the wrapper, not both!
       pkgs.rust-analyzer
       pkgs.zathura
       pkgs.mpv
     ]
-    ++ lib.optional cfg.waylandPackage.enable nixmacs-wayland
+    ++ nixmacs-full
     ++ lib.optional cfg.themes.templeos templeosFont;
 
     home.file.".emacs" = {
@@ -336,6 +364,7 @@ in {
     # Use the MODIFIED e.org with substituted path
     home.file.".nixmacs/config/e.org" = {
       text = builtins.readFile customEorg
+        + optionalString cfg.themes.filian filianThemeOrg
         + optionalString cfg.themes.fuwamoco fuwamocoThemeOrg
         + optionalString cfg.themes.marnie marnieThemeOrg
         + optionalString cfg.themes.cappuccinoNoir cappuccinoNoirThemeOrg
@@ -375,6 +404,9 @@ in {
     };
     home.file.".nixmacs/themes/cappuccino-noir-theme.el" = mkIf (cfg.themes.cappuccinoNoir || cfg.themes.installAll) {
       source = ./config/themes/cappuccino-noir-theme.el;
+    };
+    home.file.".nixmacs/themes/filian-theme.el" = mkIf (cfg.themes.filian || cfg.themes.installAll) {
+      source = ./config/themes/filian-theme.el;
     };
 
     # EXWM Config File

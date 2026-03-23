@@ -60,6 +60,8 @@ Setup the colorscheme and the font size.
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (setq-default cursor-type 'bar)
 (blink-cursor-mode 0)
+(setq org-edit-src-content-indentation 0)
+(setq org-src-preserve-indentation t)
 #+END_SRC
 ** Beacon
 Enable the Beacon Line-Highlighter Globally.
@@ -94,11 +96,6 @@ Show the full path to the currently open file in the modeline.
 (global-set-key (kbd "C-h") 'backward-kill-word)
 (global-set-key (kbd "M-[ 3 ; 5 ~") 'backward-kill-word)
 #+END_SRC
-** Magit
-#+BEGIN_SRC emacs-lisp
-(use-package magit
-  :ensure t)
-#+END_SRC
 ** Fancy Dabbrev (Simple Auto-Completion)
 Enable a simple for of auto-completion preview using fancy dabbrev.
 #+BEGIN_SRC emacs-lisp
@@ -110,6 +107,38 @@ Enable a simple for of auto-completion preview using fancy dabbrev.
 ** Sudo-Edit
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x e") #'sudo-edit)
+#+END_SRC
+** ANSI Colors
+Correctly set ANSI Colors for Interpretation of ANSI Escape Codes, and force-refresh according to current Theme.
+#+BEGIN_SRC emacs-lisp
+(require 'ansi-color)
+(setq ansi-color-faces-vector
+      [ansi-color-black
+       ansi-color-red
+       ansi-color-green
+       ansi-color-yellow
+       ansi-color-blue
+       ansi-color-magenta
+       ansi-color-cyan
+       ansi-color-white])
+
+(setq ansi-color-map (ansi-color-make-color-map))
+␍
+(defun display-ansi-colors ()
+  (interactive)
+  (require 'ansi-color)
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))))
+
+(defun my/maybe-colorize-ansi ()
+"Check for ANSI escape sequences and colorize if found."
+(save-excursion
+  (goto-char (point-min))
+  (when (re-search-forward "\033\\[[0-9;]*m" 5000 t)
+    (display-ansi-colors)
+    (set-buffer-modified-p nil))))
+
+(add-hook 'find-file-hook 'my/maybe-colorize-ansi)
 #+END_SRC
 ** Company and Auto-Suggestions
 This Chapter sets up auto-suggestions for various programming languages, and a language server connection.
@@ -518,201 +547,209 @@ This enables image perviews inside dired using image-dired when launched.
 ** Splash and Application Screen
 Here is the setup for the splash screen every time you start up emacs, and the included application launcher.
 #+BEGIN_SRC emacs-lisp
-  (setq inhibit-splash-screen t)
-  (setq inhibit-startup-message t)
-  (setq initial-scratch-message nil)
+(setq inhibit-splash-screen t)
+(setq inhibit-startup-message t)
+(setq initial-scratch-message nil)
 
-  (defvar apps-buffer nil "Application Menu")
-  (defun application-buffer ()
-    (setq apps-buffer (get-buffer-create "*apps*"))
-    (with-current-buffer apps-buffer
+(defvar apps-buffer nil "Application Menu")
+(defun application-buffer ()
+  (setq apps-buffer (get-buffer-create "*apps*"))
+  (with-current-buffer apps-buffer
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (let* ((window-width (window-width))
+             (window-height (window-height))
+             (vertical-offset (/ window-height 6)))
+        (insert (make-string vertical-offset ?\n))
+        (when (display-graphic-p)
+          (let ((image (create-image (or (getenv "NIXMACS_LOGO_PATH") "~/Pictures/nix_emacs_logo_small.png") nil nil :ascent 'center)))
+            (when image
+              (let* ((image-width (round (car (image-size image))))
+                     (padding (make-string (max 0 (/ (- window-width image-width) 2)) ?\ )))
+                (insert padding)
+                (insert-image image)
+                (insert "\n\n")))))
+        (let* ((text " Applications  \n")
+               (text-width (length text))
+               (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+          (insert padding text "\n"))
+        (let* ((lists '(("m" "EMMS")
+                        ("i" "i3 configuration file")
+                        ("e" "emacs configuration file")
+                        ("n" "nixos configuration file")
+                        ("x" "xmonad configuration file")
+                        ("p" "polybar configuration file")
+                        ("h" "home-manager configuration file")
+			  ("q" "quit emacs"))))
+	  (dolist (item lists)
+            (let* ((key (car item))
+                   (desc (cadr item))
+                   (line (format "%s => %s" key desc))
+                   (padding (make-string (max 0 (/ (- window-width (length line)) 2)) ?\ )))
+              (insert padding line "\n"))))
+        (insert "\n\n")
+        (let* ((instruction "Press b to go back...")
+               (instruction-width (length instruction))
+               (padding (make-string (max 0 (/ (- window-width instruction-width) 2)) ?\ )))
+          (insert padding instruction))))
+    (setq buffer-read-only t)
+    (goto-char (point-min))
+    ;; Setup keybindings inside the buffer context
+    (local-set-key (kbd "b") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (switch-to-buffer "*splash*")))
+    (local-set-key (kbd "m") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (call-interactively 'emms-browser)))
+    (local-set-key (kbd "i") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (find-file "~/.config/i3/config")))
+    (local-set-key (kbd "x") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (find-file "~/.xmonad/xmonad.hs")))
+    (local-set-key (kbd "e") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (find-file "~/.e.org")))
+    (local-set-key (kbd "p") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (find-file "~/.config/polybar/config.ini")))
+    (local-set-key (kbd "n") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (interactive)
+			       (find-file "/sudo::/etc/nixos/configuration.nix")))
+    (local-set-key (kbd "f") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (interactive)
+			       (find-file "/sudo::/etc/nixos/flake.nix")))
+    (local-set-key (kbd "h") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (interactive)
+			       (find-file "/sudo::/etc/nixos/home.nix")))
+    (local-set-key (kbd "q") (lambda () (interactive)
+			       (kill-buffer "*apps*")
+			       (call-interactively 'save-buffers-kill-terminal))))
+  ;; Switch to the apps-buffer
+  (switch-to-buffer apps-buffer))
+
+(defun my-custom-splash-screen ()
+  "Display custom splash screen with centered logo and text."
+  (let ((splash-buffer (get-buffer-create "*splash*")))
+    (with-current-buffer splash-buffer
+      (erase-buffer)
       (let ((inhibit-read-only t))
-        (erase-buffer)
+        ;; Calculate center position for window
         (let* ((window-width (window-width))
                (window-height (window-height))
+               ;; Insert some vertical spacing to center content
                (vertical-offset (/ window-height 6)))
+          ;; Add vertical spacing
           (insert (make-string vertical-offset ?\n))
+          ;; Insert and center the image
           (when (display-graphic-p)
             (let ((image (create-image (or (getenv "NIXMACS_LOGO_PATH") "~/Pictures/nix_emacs_logo_small.png") nil nil :ascent 'center)))
               (when image
-                (let* ((image-width (round (car (image-size image))))
+                (let* ((image-width (round (car (image-size image))))  ; Convert to integer
                        (padding (make-string (max 0 (/ (- window-width image-width) 2)) ?\ )))
                   (insert padding)
                   (insert-image image)
                   (insert "\n\n")))))
-          (let* ((text " Applications  \n")
+          ;; Insert centered text
+	  (let* ((text " Welcome to NixMacs!  \n")
+		 (text-width (length text))
+		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+	    (insert padding text "\n"))
+          (let* ((text "C-x C-f => Open or Create File")
                  (text-width (length text))
                  (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
             (insert padding text "\n"))
-          (let* ((lists '(("m" "EMMS")
-                          ("i" "i3 configuration file")
-                          ("e" "emacs configuration file")
-                          ("n" "nixos configuration file")
-                          ("x" "xmonad configuration file")
-                          ("p" "polybar configuration file")
-                          ("h" "home-manager configuration file")
-  			  ("q" "quit emacs"))))
-  	  (dolist (item lists)
-              (let* ((key (car item))
-                     (desc (cadr item))
-                     (line (format "%s => %s" key desc))
-                     (padding (make-string (max 0 (/ (- window-width (length line)) 2)) ?\ )))
-                (insert padding line "\n"))))
+	  (let* ((text "C-x d => Navigate to Directory")
+		 (text-width (length text))
+		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+	    (insert padding text "\n"))
+	  (let* ((text "a => Show Application Menu")
+		 (text-width (length text))
+		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+	    (insert padding text "\n"))
+	  (let* ((text "q => Quit Emacs")
+		 (text-width (length text))
+		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+	    (insert padding text "\n"))
+          ;; Add some more spacing
           (insert "\n\n")
-          (let* ((instruction "Press b to go back...")
+          (let* ((instruction "Press key to continue...")
                  (instruction-width (length instruction))
                  (padding (make-string (max 0 (/ (- window-width instruction-width) 2)) ?\ )))
             (insert padding instruction))))
+      ;; Make buffer read-only
       (setq buffer-read-only t)
-      (goto-char (point-min))
-      ;; Setup keybindings inside the buffer context
-      (local-set-key (kbd "b") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (switch-to-buffer "*splash*")))
-      (local-set-key (kbd "m") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (call-interactively 'emms-browser)))
-      (local-set-key (kbd "i") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (find-file "~/.config/i3/config")))
-      (local-set-key (kbd "x") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (find-file "~/.xmonad/xmonad.hs")))
-      (local-set-key (kbd "e") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (find-file "~/.e.org")))
-      (local-set-key (kbd "p") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (find-file "~/.config/polybar/config.ini")))
-      (local-set-key (kbd "n") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (interactive)
-  			       (find-file "/sudo::/etc/nixos/configuration.nix")))
-      (local-set-key (kbd "f") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (interactive)
-  			       (find-file "/sudo::/etc/nixos/flake.nix")))
-      (local-set-key (kbd "h") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (interactive)
-  			       (find-file "/sudo::/etc/nixos/home.nix")))
-      (local-set-key (kbd "q") (lambda () (interactive)
-  			       (kill-buffer "*apps*")
-  			       (call-interactively 'save-buffers-kill-terminal))))
-    ;; Switch to the apps-buffer
-    (switch-to-buffer apps-buffer))
+      (goto-char (point-min)))
+    ;; Display the buffer
+    (switch-to-buffer splash-buffer)
+    ;; Set up key bindings
+    ;; Try multiple ways to bind the Enter/Return key
+    (local-set-key (kbd "RET") (lambda () (interactive)
+                                 (kill-buffer "*splash*")))
+    (local-set-key (kbd "<return>") (lambda () (interactive)
+                                      (kill-buffer "*splash*")))
+    (local-set-key [return] (lambda () (interactive)
+                              (kill-buffer "*splash*")))
+    (local-set-key [13] (lambda () (interactive)
+                          (kill-buffer "*splash*")))
+    (local-set-key (kbd "e") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+		               (find-file "~/.e.org")))
+    (local-set-key (kbd "n") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+			       (find-file "/etc/nixos/configuration.nix")))
+    (local-set-key (kbd "f") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+			       (interactive)
+			       (find-file "/sudo::/etc/nixos/flake.nix")))
+    (local-set-key (kbd "i") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+			       (find-file "~/.config/i3/config")))
+    (local-set-key (kbd "x") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+			       (find-file "~/.xmonad/xmonad.hs")))
+    (local-set-key (kbd "p") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+			       (find-file "~/.config/polybar/config.ini")))
+    (local-set-key (kbd "m") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+			       (call-interactively 'emms-browser)))
+    (local-set-key (kbd "a") (lambda () (interactive)
+			       (application-buffer)
+			       (switch-to-buffer "*apps*")))
+			       ;;(switch-to-buffer apps-buffer)))
+    (local-set-key (kbd "n") (lambda () (interactive)
+			       (application-buffer)
+			       (interactive)
+			       (find-file "/sudo::/etc/nixos/configuration.nix")))
+    (local-set-key (kbd "h") (lambda () (interactive)
+			       (application-buffer)
+			       (interactive)
+			       (find-file "/sudo::/etc/nixos/home.nix")))
+    (local-set-key (kbd "t") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+			       (find-file "~/Documents/temp.org")))
+    (local-set-key (kbd "q") (lambda () (interactive)
+			       (kill-buffer "*splash*")
+			       (call-interactively 'save-buffers-kill-terminal)))))
 
-  (defun my-custom-splash-screen ()
-    "Display custom splash screen with centered logo and text."
-    (let ((splash-buffer (get-buffer-create "*splash*")))
-      (with-current-buffer splash-buffer
-        (erase-buffer)
-        (let ((inhibit-read-only t))
-          ;; Calculate center position for window
-          (let* ((window-width (window-width))
-                 (window-height (window-height))
-                 ;; Insert some vertical spacing to center content
-                 (vertical-offset (/ window-height 6)))
-            ;; Add vertical spacing
-            (insert (make-string vertical-offset ?\n))
-            ;; Insert and center the image
-            (when (display-graphic-p)
-              (let ((image (create-image (or (getenv "NIXMACS_LOGO_PATH") "~/Pictures/nix_emacs_logo_small.png") nil nil :ascent 'center)))
-                (when image
-                  (let* ((image-width (round (car (image-size image))))  ; Convert to integer
-                         (padding (make-string (max 0 (/ (- window-width image-width) 2)) ?\ )))
-                    (insert padding)
-                    (insert-image image)
-                    (insert "\n\n")))))
-            ;; Insert centered text
-  	  (let* ((text " Welcome to NixMacs!  \n")
-  		 (text-width (length text))
-  		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
-  	    (insert padding text "\n"))
-            (let* ((text "C-x C-f => Open or Create File")
-                   (text-width (length text))
-                   (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
-              (insert padding text "\n"))
-  	  (let* ((text "C-x d => Navigate to Directory")
-  		 (text-width (length text))
-  		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
-  	    (insert padding text "\n"))
-  	  (let* ((text "a => Show Application Menu")
-  		 (text-width (length text))
-  		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
-  	    (insert padding text "\n"))
-  	  (let* ((text "q => Quit Emacs")
-  		 (text-width (length text))
-  		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
-  	    (insert padding text "\n"))
-            ;; Add some more spacing
-            (insert "\n\n")
-            (let* ((instruction "Press key to continue...")
-                   (instruction-width (length instruction))
-                   (padding (make-string (max 0 (/ (- window-width instruction-width) 2)) ?\ )))
-              (insert padding instruction))))
-        ;; Make buffer read-only
-        (setq buffer-read-only t)
-        (goto-char (point-min)))
-      ;; Display the buffer
-      (switch-to-buffer splash-buffer)
-      ;; Set up key bindings
-      ;; Try multiple ways to bind the Enter/Return key
-      (local-set-key (kbd "RET") (lambda () (interactive)
-                                   (kill-buffer "*splash*")))
-      (local-set-key (kbd "<return>") (lambda () (interactive)
-                                        (kill-buffer "*splash*")))
-      (local-set-key [return] (lambda () (interactive)
-                                (kill-buffer "*splash*")))
-      (local-set-key [13] (lambda () (interactive)
-                            (kill-buffer "*splash*")))
-      (local-set-key (kbd "e") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  		               (find-file "~/.e.org")))
-      (local-set-key (kbd "n") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  			       (find-file "/etc/nixos/configuration.nix")))
-      (local-set-key (kbd "f") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  			       (interactive)
-  			       (find-file "/sudo::/etc/nixos/flake.nix")))
-      (local-set-key (kbd "i") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  			       (find-file "~/.config/i3/config")))
-      (local-set-key (kbd "x") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  			       (find-file "~/.xmonad/xmonad.hs")))
-      (local-set-key (kbd "p") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  			       (find-file "~/.config/polybar/config.ini")))
-      (local-set-key (kbd "m") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  			       (call-interactively 'emms-browser)))
-      (local-set-key (kbd "a") (lambda () (interactive)
-  			       (application-buffer)
-  			       (switch-to-buffer "*apps*")))
-  			       ;;(switch-to-buffer apps-buffer)))
-      (local-set-key (kbd "n") (lambda () (interactive)
-  			       (application-buffer)
-  			       (interactive)
-  			       (find-file "/sudo::/etc/nixos/configuration.nix")))
-      (local-set-key (kbd "h") (lambda () (interactive)
-  			       (application-buffer)
-  			       (interactive)
-  			       (find-file "/sudo::/etc/nixos/home.nix")))
-      (local-set-key (kbd "t") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  			       (find-file "~/Documents/temp.org")))
-      (local-set-key (kbd "q") (lambda () (interactive)
-  			       (kill-buffer "*splash*")
-  			       (call-interactively 'save-buffers-kill-terminal)))))
-      ;; Any other key just dismisses splash screen
-      ;(local-set-key [t] (lambda () (interactive) (kill-buffer "*splash*")))))
-  ;; Show custom splash screen on startup (only in graphical mode)
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (when (display-graphic-p)
-                (my-custom-splash-screen))))
+;; Any other key just dismisses splash screen
+;(local-set-key [t] (lambda () (interactive) (kill-buffer "*splash*")))
+;; Show custom splash screen on startup (only in graphical mode)
+(defun my/maybe-show-splash ()
+  "Show splash screen only if no files were opened from the command line."
+  (unless (> (length (window-list-1 nil nil t)) 1)
+    (my-custom-splash-screen)))
+
+(add-hook 'emacs-startup-hook #'my/maybe-show-splash)
+
+;(add-hook 'emacs-startup-hook
+;          (lambda ()
+;            (when (display-graphic-p)
+;              (my-custom-splash-screen))))
 #+END_SRC
 ** Panic-Quit Emacs
 This is a sort of nuclear option for force-quitting emacs when you're stuck anywhere, or are using multiple nested emacs instances within one another using the M-x term command.

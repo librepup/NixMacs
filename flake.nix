@@ -32,22 +32,92 @@
       };
 
       # Standalone nixmacs builder (duplicate logic from module.nix)
+      emacsWithPackages = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
+        use-package
+        color-theme-sanityinc-tomorrow
+        company
+        emms
+        fancy-dabbrev
+        lsp-mode
+        lsp-ui
+        markdown-mode
+        multi-term
+        multiple-cursors
+        nix-buffer
+        nix-mode
+        rainbow-mode
+        rust-mode
+        rustic
+        wttrin
+        hydra
+        all-the-icons
+        haskell-mode
+        arduino-mode
+        flycheck
+        gruvbox-theme
+        bongo
+        impatient-mode
+        simple-httpd
+        compat
+        xelb
+        nickel-mode
+        iedit
+        anzu
+        visual-regexp
+        try
+        sudo-edit
+        hoon-mode
+        pdf-tools
+        magit
+        beacon
+        doom-modeline
+        vim-tab-bar
+        dired-subtree
+      ]);
+
       nixmacs = pkgs.writeShellScriptBin "nixmacs" ''
-        exec ${pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
-          use-package color-theme-sanityinc-tomorrow company emms
-          fancy-dabbrev lsp-mode lsp-ui markdown-mode multi-term
-          multiple-cursors nix-buffer nix-mode rainbow-mode rust-mode
-          rustic wttrin hydra all-the-icons haskell-mode arduino-mode
-          flycheck gruvbox-theme bongo impatient-mode simple-httpd
-          compat xelb nickel-mode iedit anzu visual-regexp try sudo-edit
-          hoon-mode pdf-tools magit beacon doom-modeline vim-tab-bar
-        ] ++ [
-          # Add your custom derivations here if needed
-        ])}/bin/emacs "$@"
+        CONF_DIR=$(mktemp -d /tmp/nixmacs-params.XXXXXX)
+        ${pkgs.gnused}/bin/sed 's/\r//g; s/\xc2\xa0/ /g' ${./config/e.org} > $CONF_DIR/e.org
+
+        mkdir $CONF_DIR/themes
+        cp ${./config/themes/filian-theme.el} $CONF_DIR/themes/filian-theme.el
+        sed -i "s|~/.nixmacs/themes/|$CONF_DIR/themes/|g" $CONF_DIR/e.org
+        sed -i "s|~/.nixmacs/|$CONF_DIR/|g" $CONF_DIR/e.org
+        sed -i "s|~/Music|$CONF_DIR/Music|g" $CONF_DIR/e.org
+        mkdir $CONF_DIR/images
+        cp ${./config/nix_emacs_logo_small.png} $CONF_DIR/images/nix_emacs_logo_small.png
+        sed -i "s|~/Pictures/|$CONF_DIR/images/|g" $CONF_DIR/e.org
+        export NIXMACS_LOGO_PATH=$CONF_DIR/images/nix_emacs_logo_small.png
+        export HOME=$CONF_DIR
+
+        echo -e "\n* Theme/Colorscheme\n#+BEGIN_SRC\n(load-theme 'filian t)\n#+END_SRC" >> $CONF_DIR/e.org
+
+        ${emacsWithPackages}/bin/emacs \
+          --batch \
+          --eval "(setq coding-system-for-read 'utf-8-unix)" \
+          --eval "(setq coding-system-for-write 'utf-8-unix)" \
+          --eval "(require 'org)" \
+          --eval "(org-babel-tangle-file \"$CONF_DIR/e.org\" \"$CONF_DIR/e.el\")"
+
+        ${pkgs.gnused}/bin/sed -i 's/\r//g' $CONF_DIR/e.el
+
+        exec ${emacsWithPackages}/bin/emacs \
+          --debug-init \
+          --name "NixMacs-Demo" \
+          --init-directory "$CONF_DIR" \
+          --load  "$CONF_DIR/e.el" "$@"
+      '';
+
+      nixmacs-client = pkgs.writeShellScriptBin "nixmacs-client" ''
+        exec ${emacsWithPackages}/bin/emacsclient "$@"
       '';
     in {
-      packages.nixmacs = nixmacs;
-      apps.nixmacs = {
+      packages = {
+        default = nixmacs;
+        nixmacs = nixmacs;
+        nixmacs-client = nixmacs-client;
+      };
+      apps.default = {
         type = "app";
         program = "${nixmacs}/bin/nixmacs";
         meta = {
