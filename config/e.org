@@ -138,6 +138,14 @@ Correctly set ANSI Colors for Interpretation of ANSI Escape Codes, and force-ref
     (set-buffer-modified-p nil))))
 
 (add-hook 'find-file-hook 'my/maybe-colorize-ansi)
+
+(defun my/ansi-colorize-buffer ()
+  (interactive)
+  (require 'ansi-color)
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))))
+
+(global-set-key (kbd "C-c C-a") #'my/ansi-colorize-buffer)
 #+END_SRC
 ** Company and Auto-Suggestions
 This Chapter sets up auto-suggestions for various programming languages, and a language server connection.
@@ -740,11 +748,14 @@ Here is the setup for the splash screen every time you start up emacs, and the i
 ;(local-set-key [t] (lambda () (interactive) (kill-buffer "*splash*")))
 ;; Show custom splash screen on startup (only in graphical mode)
 (defun my/maybe-show-splash ()
-  "Show splash screen only if no files were opened from the command line."
-  (unless (> (length (window-list-1 nil nil t)) 1)
+  (interactive)
+  (when (and (display-graphic-p)
+             (member (buffer-name) '("*scratch*" "*Messages*"))
+             (= (length (window-list)) 1))
     (my-custom-splash-screen)))
 
-(add-hook 'emacs-startup-hook #'my/maybe-show-splash)
+;(add-hook 'emacs-startup-hook #'my/maybe-show-splash)
+(add-hook 'window-setup-hook #'my/maybe-show-splash)
 
 ;(add-hook 'emacs-startup-hook
 ;          (lambda ()
