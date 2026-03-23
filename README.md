@@ -9,7 +9,7 @@ A NixOS Flake Module to use my custom configuration of Emacs (NixMacs) easily as
 # Info
 ## Included Packages
 ```
-use-package color-theme-sanityinc-tomorrow company emms fancy-dabbrev lsp-mode lsp-ui markdown-mode multi-term multiple-cursors nix-buffer nix-mode rainbow-mode rust-mode rustic wttrin hydra all-the-icons haskell-mode arduino-mode flycheck gruvbox-theme bongo impatient-mode simple-httpd hoon-mode compat xelb nickel-mode iedit anzu visual-regexp try sudo-edit pdf-tools magit beacon doom-modeline vim-tab-bar
+use-package color-theme-sanityinc-tomorrow company emms fancy-dabbrev lsp-mode lsp-ui markdown-mode multi-term multiple-cursors nix-buffer nix-mode rainbow-mode rust-mode rustic wttrin hydra all-the-icons haskell-mode arduino-mode flycheck gruvbox-theme bongo impatient-mode simple-httpd hoon-mode compat xelb nickel-mode iedit anzu visual-regexp try sudo-edit pdf-tools magit beacon doom-modeline vim-tab-bar erc-image dired-subtree
 ```
 
 # Try NixMacs
@@ -61,7 +61,8 @@ Simply run `nix run github:nixpup/NixMacs#nixmacs` (you may need to add the `--n
 nixMacs = {
   enable = true;
   themes = {
-    fuwamoco = true;
+    filian = true;
+    fuwamoco = false;
     marnie = false;
     gruvbox = false;
     templeos = false;
@@ -72,7 +73,10 @@ nixMacs = {
     enable = true; # Create "~/.nixmacs/config/exwm.el" File.
     layout = "qwerty"; # Can also be "colemak".
   };
-  waylandPackage.enable = true; # Enable the creation of a "nixmacs-wayland" binary.
+  wayland = {
+    enable = true;
+    separatePackage = true;
+  };
 };
 ```
 
