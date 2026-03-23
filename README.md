@@ -14,7 +14,7 @@ use-package color-theme-sanityinc-tomorrow company emms fancy-dabbrev lsp-mode l
 
 # Try NixMacs
 ## Without Installing on NixOS
-Simply run `nix run github:nixpup/NixMacs#nixmacs` (you may need to add the `--no-write-lock-file` flag) inside a Terminal and you can test NixMacs without having to install or configure anything!
+Simply run `nix run github:librepup/NixMacs#nixmacs` (you may need to add the `--no-write-lock-file` flag) inside a Terminal and you can test NixMacs without having to install or configure anything!
 
 # Installation
 ## Inside a Flake
@@ -23,7 +23,7 @@ Simply run `nix run github:nixpup/NixMacs#nixmacs` (you may need to add the `--n
 {
   # ... your configuration.
   nixmacs = {
-    url = "github:nixpup/NixMacs";
+    url = "github:librepup/NixMacs";
     inputs.nixpkgs.follows = "nixpkgs";
     inputs.home-manager.follows = "home-manager";
   };
@@ -81,5 +81,5 @@ nixMacs = {
 ```
 
 # Showcase
-![Showcase 1](https://raw.githubusercontent.com/nixpup/NixMacs/refs/heads/main/nixmacs_demo_01.png)
-![Showcase 2](https://raw.githubusercontent.com/nixpup/NixMacs/refs/heads/main/nixmacs_demo_02.png)
+![Showcase 1](https://raw.githubusercontent.com/librepup/NixMacs/refs/heads/main/nixmacs_demo_01.png)
+![Showcase 2](https://raw.githubusercontent.com/librepup/NixMacs/refs/heads/main/nixmacs_demo_02.png)
