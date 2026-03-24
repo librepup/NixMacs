@@ -195,20 +195,20 @@ let
     exec ${configuredEmacsWayland}/bin/emacsclient "$@"
   '';
 
-  #nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
-  #  unset EMACSLOADPATH
-  #  exec ${configuredEmacsX11}/bin/emacs "$@"
-  #'';
+  nixmacs-pager = pkgs.writeShellScriptBin "${cfg.binaryName}-pager" ''
+    #!/usr/bin/env zsh
 
-  #nixmacs-wayland = pkgs.writeShellScriptBin "${cfg.binaryName}-wayland" ''
-  #  unset EMACSLOADPATH
-  #  exec ${configuredEmacsWayland}/bin/emacs "$@"
-  #'';
+    tmp=$(mktemp)
 
-  #nixmacs-client = pkgs.writeShellScriptBin "${cfg.binaryName}-client" ''
-  #  exec ${configuredEmacsX11}/bin/emacsclient "$@"
-  #'';
+    cat > $tmp
 
+    ${primaryEmacs}/bin/emacsclient -nw --eval "
+    (with-current-buffer (find-file \"$tmp\")
+      (view-mode)
+      (goto-char (point-min))
+      (add-hook 'kill-buffer-hook (lambda () (ignore-errors (delete-file \"$tmp\")))))
+    "
+  '';
 in {
   options.nixMacs = {
     enable = mkEnableOption "custom Emacs configuration";
@@ -356,6 +356,7 @@ in {
       pkgs.mpv
       nixmacs
       nixmacs-client
+      nixmacs-pager
     ]
     ++ lib.optionals (cfg.wayland.enable && cfg.wayland.separatePackage) [
       nixmacs-wayland
