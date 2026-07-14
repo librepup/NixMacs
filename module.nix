@@ -113,20 +113,20 @@ let
     '';
   };
 
-  exwmFixed = pkgs.emacsPackages.trivialBuild rec {
-    pname = "exwm";
-    version = "0.34";
-    src = pkgs.fetchFromGitHub {
-      owner = "emacs-exwm";
-      repo = "exwm";
-      rev = "0.34";
-      sha256 = "sha256-7Z8vkmkMFsZnBfiadoKNiaJd1+RvCr2OxW1EiY9xY4s=";
-    };
-    packageRequires = [
-      pkgs.emacsPackages.compat
-      pkgs.emacsPackages.xelb
-    ];
-  };
+  # exwmFixed = pkgs.emacsPackages.trivialBuild rec {
+  #   pname = "exwm";
+  #   version = "0.34";
+  #   src = pkgs.fetchFromGitHub {
+  #     owner = "emacs-exwm";
+  #     repo = "exwm";
+  #     rev = "0.34";
+  #     sha256 = "sha256-7Z8vkmkMFsZnBfiadoKNiaJd1+RvCr2OxW1EiY9xY4s=";
+  #   };
+  #   packageRequires = [
+  #     pkgs.emacsPackages.compat
+  #     pkgs.emacsPackages.xelb
+  #   ];
+  # };
 
   includedPackages = epkgs: with epkgs; [
     use-package
@@ -155,9 +155,9 @@ let
     impatient-mode
     simple-httpd
     hoon-mode
-    exwmFixed
+    # exwmFixed
     compat
-    xelb
+    # xelb
     nickel-mode
     iedit
     anzu

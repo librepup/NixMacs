@@ -59,7 +59,7 @@
         impatient-mode
         simple-httpd
         compat
-        xelb
+        # xelb
         nickel-mode
         iedit
         anzu
